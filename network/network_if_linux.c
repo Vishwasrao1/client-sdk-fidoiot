@@ -995,7 +995,24 @@ const char *get_device_model(void)
  */
 const char *get_device_serial_number(void)
 {
-	return "fdo-linux-1234";
+	FILE *fp;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+   fp = fopen("/opt/fdo/data/manufacturer_sn.bin", "r");
+    if (fp == NULL)
+        exit(EXIT_FAILURE);
+		LOG(LOG_ERROR, "manufacturer_sn.bin: No such file or the file is empty \n");
+
+   while ((read = getline(&line, &len, fp)) != -1) {
+		LOG(LOG_DEBUG, "Retrieved line of length %zu :\n", read);
+		LOG(LOG_DEBUG, "The Serial Number is : %s", line);
+		
+    }
+	return line;
+	free(line);
+    exit(EXIT_SUCCESS);
 }
 
 /**
