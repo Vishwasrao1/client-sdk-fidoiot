@@ -406,7 +406,7 @@ int fdo_sys(fdo_sdk_si_type type,
 			result = FDO_SI_SUCCESS;
 			if(result == FDO_SI_SUCCESS)
 			{
-			system(SHELLSCRIPT);
+			(void) system(SHELLSCRIPT);
 			}
 			goto end;
 		} else if (strcmp_exec == 0 || strcmp_execcb == 0) {
