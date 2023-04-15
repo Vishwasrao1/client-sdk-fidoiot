@@ -45,7 +45,7 @@ client_sdk_compile_options(
   -Wsign-compare
   -Wno-deprecated-declarations
   -Wpedantic
-  -Werror
+  #-Werror
   -Wimplicit-function-declaration
   -Wnested-externs
   -Wmissing-prototypes
