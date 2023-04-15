@@ -14,16 +14,16 @@
 // hawkbit onboarding script file Macros
 #define SHELLSCRIPT "\
 #!/usr/bin/env bash\n\
-url=$(grep -Po '(?<=URL:)[^ ]*' /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.config)\n\
-controllerid=$(grep -Po '(?<=ControllerId:)[^ ]*' /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.config)\n\
-securitytoken=$(grep -Po '(?<=SecurityToken:)[^ ]*' /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.config)\n\
+url=$(grep -Po '(?<=URL:)[^ ]*' /opt/fdo/hawkbit.config)\n\
+controllerid=$(grep -Po '(?<=ControllerId:)[^ ]*' /opt/fdo/hawkbit.config)\n\
+securitytoken=$(grep -Po '(?<=SecurityToken:)[^ ]*' /opt/fdo/hawkbit.config)\n\
 if [ -n \"$url\" ] && [ -n \"$controllerid\" ] && [ -n \"$securitytoken\" ] && echo \"$securitytoken\" | grep -qE '^[a-z0-9]{32}$'; then\n\
     timestamp=$(date +%Y-%m-%d_%H:%M:%S)\n\
-    echo \"Hawkbit config changed at $timestamp\" >> /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log\n\
+    echo \"Hawkbit config changed at $timestamp\" >> /opt/fdo/hawkbit.log\n\
     set -x\n\
-    sudo /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u $url -i $controllerid -k $securitytoken\" >> /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log 2>&1 &\n\
+    sudo /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u $url -i $controllerid -k $securitytoken\" >> /opt/fdo/hawkbit.log 2>&1 &\n\
 else\n\
-    echo \"Error: missing or invalid configuration values\" >> /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log\n\
+    echo \"Error: missing or invalid configuration values\" >> /opt/fdo/hawkbit.log\n\
 fi\n\
 "
 
