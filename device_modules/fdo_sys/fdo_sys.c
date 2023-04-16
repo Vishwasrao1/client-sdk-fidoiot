@@ -21,7 +21,7 @@ if [ -n \"$url\" ] && [ -n \"$controllerid\" ] && [ -n \"$securitytoken\" ] && e
     timestamp=$(date +%Y-%m-%d_%H:%M:%S)\n\
     echo \"Hawkbit config changed at $timestamp\" >> /opt/fdo/hawkbit.log\n\
     set -x\n\
-    sudo /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u $url -i $controllerid -k $securitytoken\" >> /opt/fdo/hawkbit.log 2>&1 &\n\
+    /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u $url -i $controllerid -k $securitytoken\" >> /opt/fdo/hawkbit.log 2>&1 &\n\
 else\n\
     echo \"Error: missing or invalid configuration values\" >> /opt/fdo/hawkbit.log\n\
 fi\n\
