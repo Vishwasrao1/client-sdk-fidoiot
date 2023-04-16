@@ -10,22 +10,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "fdo_sys_utils.h"
-
-// hawkbit onboarding script file Macros
-#define SHELLSCRIPT "\
-#!/usr/bin/env bash\n\
-url=$(grep -Po '(?<=URL:)[^ ]*' /opt/fdo/hawkbit.config)\n\
-controllerid=$(grep -Po '(?<=ControllerId:)[^ ]*' /opt/fdo/hawkbit.config)\n\
-securitytoken=$(grep -Po '(?<=SecurityToken:)[^ ]*' /opt/fdo/hawkbit.config)\n\
-if [ -n \"$url\" ] && [ -n \"$controllerid\" ] && [ -n \"$securitytoken\" ] && echo \"$securitytoken\" | grep -qE '^[a-z0-9]{32}$'; then\n\
-    timestamp=$(date +%Y-%m-%d_%H:%M:%S)\n\
-    echo \"Hawkbit config changed at $timestamp\" >> /opt/fdo/hawkbit.log\n\
-    set -x\n\
-    /usr/bin/swupdate -v -k /hb-cert.crt -u \"-t DEFAULT -x -u $url -i $controllerid -k $securitytoken\" >> /opt/fdo/hawkbit.log 2>&1 &\n\
-else\n\
-    echo \"Error: missing or invalid configuration values\" >> /opt/fdo/hawkbit.log\n\
-fi\n\
-"
+#include <string.h>
+#include <regex.h>
+#include <time.h>
 
 
 // CBOR-decoder. Interchangeable with any other CBOR implementation.
@@ -406,7 +393,7 @@ int fdo_sys(fdo_sdk_si_type type,
 			result = FDO_SI_SUCCESS;
 			if(result == FDO_SI_SUCCESS)
 			{
-				system(SHELLSCRIPT);
+			 hawkbitOnboarding();
 			}
 			goto end;
 		} else if (strcmp_exec == 0 || strcmp_execcb == 0) {
@@ -728,4 +715,64 @@ static bool write_eot(char *module_message, int status) {
 	}
 
 	return true;
+}
+
+void hawkbitOnboarding()
+{
+	FILE *configFile;
+    char buffer[256];
+    char url_copy[256], controllerid_copy[256], securitytoken_copy[256];
+    char *url, *controllerid, *securitytoken, *timestamp;
+
+    configFile = fopen("/home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.config", "r");
+    if (configFile == NULL) {
+        perror("Error opening file");
+        exit(1);
+    }
+
+    while (fgets(buffer, sizeof(buffer), configFile)) {
+        if (strstr(buffer, "URL:") != NULL) {
+            strcpy(url_copy, buffer);
+            url = strtok(url_copy, ":");
+            url = strtok(NULL, " \n");
+        } else if (strstr(buffer, "ControllerId:") != NULL) {
+            strcpy(controllerid_copy, buffer);
+            controllerid = strtok(controllerid_copy, ":");
+            controllerid = strtok(NULL, " \n");
+        } else if (strstr(buffer, "SecurityToken:") != NULL) {
+            strcpy(securitytoken_copy, buffer);
+            securitytoken = strtok(securitytoken_copy, ":");
+            securitytoken = strtok(NULL, " \n");
+        }
+    }
+
+    fclose(configFile);
+
+    printf("URL: %s\n", url);
+    printf("ControllerId: %s\n", controllerid);
+    printf("SecurityToken: %s\n", securitytoken);
+
+
+  // check if all values are non-empty and valid
+  if (strlen(url) > 0 && strlen(controllerid) > 0 && strlen(securitytoken) > 0 &&
+      strspn(securitytoken, "abcdefghijklmnopqrstuvwxyz0123456789") == 32) {
+    // get the current timestamp
+    time_t current_time = time(NULL);
+    struct tm *tm = localtime(&current_time);
+    strftime(timestamp, 20, "%Y-%m-%d_%H:%M:%S", tm);
+
+    // write the log message to the file
+    FILE *log_file = fopen("/home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log", "a");
+    if (log_file == NULL) {
+      printf("Error: could not open log file\n");
+      exit(1);
+    }
+    fprintf(log_file, "Hawkbit config changed at %s\n", timestamp);
+    fclose(log_file);
+
+	// execute the swupdate command
+	char command[2048];
+	sprintf(command, "sudo /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
+	popen(command, "r");
+	}
 }
