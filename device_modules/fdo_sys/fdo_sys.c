@@ -724,7 +724,7 @@ void hawkbitOnboarding()
     char url_copy[256], controllerid_copy[256], securitytoken_copy[256];
     char *url, *controllerid, *securitytoken, *timestamp;
 
-    configFile = fopen("/home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.config", "r");
+    configFile = fopen("/opt/fdo/hawkbit.config", "r");
     if (configFile == NULL) {
         perror("Error opening file");
         exit(1);
@@ -762,7 +762,7 @@ void hawkbitOnboarding()
     strftime(timestamp, 20, "%Y-%m-%d_%H:%M:%S", tm);
 
     // write the log message to the file
-    FILE *log_file = fopen("/home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log", "a");
+    FILE *log_file = fopen("/opt/fdo/hawkbit.log", "a");
     if (log_file == NULL) {
       printf("Error: could not open log file\n");
       exit(1);
@@ -772,7 +772,7 @@ void hawkbitOnboarding()
 
 	// execute the swupdate command
 	char command[2048];
-	sprintf(command, "sudo /usr/bin/swupdate -v -k /home/vishwas/fdo-5/hawkbit-docker/hb-cert.crt -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /home/vishwas/fdo-5/client-sdk-fidoiot/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
+	sprintf(command, "/usr/bin/swupdate -v -k /hb-cert.crt -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /opt/fdo/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
 	popen(command, "r");
 	}
 }
