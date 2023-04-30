@@ -96,6 +96,11 @@ int32_t msg13(fdo_prot_t *ps)
 
 	LOG(LOG_INFO, "(Current) GUID after DI: %s\n",
 		fdo_guid_to_string(ps->dev_cred->owner_blk->guid, guid_buf, sizeof(guid_buf)));
+	FILE *fp;
+    	char str[] = "Device Initialization complete"; 
+	fp = fopen("/opt/fdo/DIStatus", "w"); 
+	fputs(str, fp);
+	fclose(fp);
 	LOG(LOG_DEBUG, "DIDone completed\n");
 	ret = 0;
 
