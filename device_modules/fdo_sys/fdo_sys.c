@@ -772,7 +772,7 @@ void hawkbitOnboarding()
 
 	// execute the swupdate command
 	char command[2048];
-	sprintf(command, "/usr/bin/swupdate -v -k /hb-cert.crt -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /opt/fdo/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
+	sprintf(command, "/usr/bin/swupdate -v -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /opt/fdo/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
 	popen(command, "r");
 	}
 }
