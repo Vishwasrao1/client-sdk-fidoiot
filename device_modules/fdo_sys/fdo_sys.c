@@ -726,7 +726,7 @@ void hawkbitOnboarding()
 
     configFile = fopen("/opt/fdo/hawkbit.config", "r");
     if (configFile == NULL) {
-        perror("Error opening file");
+		LOG(LOG_DEBUG,"Error opening hawkbit.config file\n");
         exit(1);
     }
 
@@ -764,7 +764,7 @@ void hawkbitOnboarding()
     // write the log message to the file
     FILE *log_file = fopen("/opt/fdo/hawkbit.log", "a");
     if (log_file == NULL) {
-      printf("Error: could not open log file\n");
+      LOG(LOG_DEBUG,"Error opening hawkbit.log file\n");
       exit(1);
     }
     fprintf(log_file, "Hawkbit config changed at %s\n", timestamp);
@@ -773,6 +773,23 @@ void hawkbitOnboarding()
 	// execute the swupdate command
 	char command[2048];
 	sprintf(command, "/usr/bin/swupdate -v -u \"-t DEFAULT -x -u %s -i %s -k %s\" >> /opt/fdo/hawkbit.log 2>&1 &", url, controllerid, securitytoken);
-	popen(command, "r");
+	// Fork a new process
+        pid_t pid = fork();
+
+        if (pid == -1) {
+            LOG(LOG_DEBUG,"Error Fork Failed\n");
+            exit(1);
+        } else if (pid == 0) {
+            // Child process
+			if (setsid() < 0) {
+            LOG(LOG_DEBUG,"Error setsid\n");
+            exit(EXIT_FAILURE);
+        }
+            system(command);
+        } else {
+            // Parent process
+			LOG(LOG_DEBUG,"Child process created for swupdate with PID: %d\n", pid);
+        }
+
 	}
 }
